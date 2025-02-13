@@ -6,12 +6,8 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ClusterTracker.Windows;
 using Dalamud.Game.Text;
-using Dalamud.Game.Gui;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects;
-using System.Collections.Generic;
-using System;
+
 
 
 namespace ClusterTracker;
@@ -92,8 +88,8 @@ public sealed class Plugin : IDalamudPlugin
      private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled){
 
         //Checks to see if the last message was you getting a bozjan cluster
-        if (message.TextValue.Contains("You obtain a Bozjan Cluster")){
-            ChatGui.Print("Detected Bozjan Cluster drop!");
+        if (message.TextValue.Contains("You obtain a Bozjan cluster")){
+            ChatGui.Print("Detected Bozjan cluster drop!");
         }
     }
 
