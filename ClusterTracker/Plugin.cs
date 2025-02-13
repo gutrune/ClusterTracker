@@ -5,6 +5,14 @@ using System.IO;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using ClusterTracker.Windows;
+using Dalamud.Game.Text;
+using Dalamud.Game.Gui;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects;
+using System.Collections.Generic;
+using System;
+
 
 namespace ClusterTracker;
 
@@ -16,9 +24,11 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
+    [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
 
     private const string CommandName = "/ct";
-    private const string configCommandName = "/ctcfg";
+
+    
 
     public Configuration Configuration { get; init; }
 
@@ -41,8 +51,10 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Shows your "
+            HelpMessage = "Display Cluster Tracker Menu"
         });
+
+        ChatGui.ChatMessage += OnChatMessage;
 
         PluginInterface.UiBuilder.Draw += DrawUI;
 
@@ -67,12 +79,22 @@ public sealed class Plugin : IDalamudPlugin
         MainWindow.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
+
+        ChatGui.ChatMessage -= OnChatMessage;
     }
 
-    private void OnCommand(string command, string args)
-    {
+    private void OnCommand(string command, string args){
         // in response to the slash command, just toggle the display status of our main ui
         ToggleMainUI();
+    }
+
+    
+     private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled){
+
+        //Checks to see if the last message was you getting a bozjan cluster
+        if (message.TextValue.Contains("You obtain a Bozjan Cluster")){
+            ChatGui.Print("Detected Bozjan Cluster drop!");
+        }
     }
 
     private void DrawUI() => WindowSystem.Draw();
