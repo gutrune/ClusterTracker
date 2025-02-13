@@ -1,11 +1,10 @@
 {
   "Author": "Gutrune",
   "Name": "Cluster Tracker",
-  "Punchline": "A Plugin to track cluster drops",
-  "Description": "Tracks Bozjan Cluster droprates and stores them",
+  "Punchline": "Track your clusters",
+  "Description": "Tracks the droprates of bozjan clusters in BSF and Zadnor",
   "ApplicableVersion": "any",
   "Tags": [
     "stq"
-  ],
-  "RepoUrl": "https://github.com/gutrune/ClusterTracker"
+  ]
 }
