@@ -1,12 +1,11 @@
 {
-  "Author": "your name here",
-  "Name": "Sample Plugin",
-  "Punchline": "A short one-liner that shows up in /xlplugins.",
-  "Description": "A description that shows up in /xlplugins. List any major slash-command(s).",
+  "Author": "Gutrune",
+  "Name": "Cluster Tracker",
+  "Punchline": "A Plugin to track cluster drops",
+  "Description": "Tracks Bozjan Cluster droprates and stores them",
   "ApplicableVersion": "any",
   "Tags": [
-    "sample",
-    "plugin",
-    "goats"
-  ]
+    "stq"
+  ],
+  "RepoUrl": "https://github.com/gutrune/ClusterTracker"
 }

@@ -4,9 +4,9 @@ using Dalamud.Plugin;
 using System.IO;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using SamplePlugin.Windows;
+using ClusterTracker.Windows;
 
-namespace SamplePlugin;
+namespace ClusterTracker;
 
 public sealed class Plugin : IDalamudPlugin
 {
@@ -17,7 +17,8 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
 
-    private const string CommandName = "/pmycommand";
+    private const string CommandName = "/ct";
+    private const string configCommandName = "/ctcfg";
 
     public Configuration Configuration { get; init; }
 
