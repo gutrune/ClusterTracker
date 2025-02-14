@@ -1,0 +1,20 @@
+[
+    {
+        "Author": "Gutrune",
+        "Name": "Cluster Tracker",
+        "InternalName": "clusterTracker",
+        "Punchline": "Track your Bozjan cluster drops",
+        "Description": "tracks your cluster drops. Use /ct to open window",
+        "AssemblyVersion": "0.1",
+        "RepoUrl": "https://github.com/gutrune/ClusterTracker",
+        "ApplicableVersion": "any",
+        "DalamudApiLevel": 11,
+        "Tags": [
+        "stq"
+        ],
+        "IconUrl":"https://raw.githubusercontent.com/gutrune/ClusterTracker/refs/heads/master/Data/Bozjan_cluster.png",
+        "DownloadLinkInstall": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker/ClusterTracker.0.1.zip",
+        "DownloadLinkTesting": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker/ClusterTracker.0.1.zip",
+        "DownloadLinkUpdate": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker/ClusterTracker.0.1.zip"
+    }
+]
