@@ -45,15 +45,14 @@ public sealed class Plugin : IDalamudPlugin
     public static Dictionary<string, MobInfo> bsfDict = 
         new Dictionary<string, MobInfo>{
             {"slashers", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
-            {"Nimrod", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"nimrod", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
             {"gunship", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
-            {"hexadrone", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
             {"vanguard", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
-            {"Avenger", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
-            {"Death Claw", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
-            {"Armored Weapon", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"avenger", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"death claw", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"armored weapon", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
             {"hexadrone", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
-            {"Scorpion", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"scorpion", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
         };
 
     public Configuration Configuration { get; init; }
@@ -70,7 +69,7 @@ public sealed class Plugin : IDalamudPlugin
         var goatImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
 
         ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow(this, goatImagePath);
+        MainWindow = new MainWindow(this);
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
@@ -115,54 +114,50 @@ public sealed class Plugin : IDalamudPlugin
         ToggleMainUI();
     }
 
-    private string lastEnemyKilled = "";
-    private int numEnemiesKilled = 0;
-    private int totalClusters;
-
-    public Dictionary<string, int[]> BSFMobs = new(){
-        {"slashers", [1, 0, 0]},
-        {"vanguard", [1, 0, 0]},
-        {"hexadrone", [1, 0, 0]},
-        {"nimrod", [2, 0, 0]},
-        {"avenger", [2, 0, 0]},
-        {"scorpion", [2, 0, 0]},
-        {"gunship", [3, 0, 0]},
-        {"roader", [3, 0, 0]},
-        {"death claw", [3, 0, 0]},
-        {"armored weapon", [3, 0, 0]}
-    };
-
-    public Dictionary<string, int[]> zadnorMobs = new(){
-        {"nimrod", [1, 0, 0]},
-        {"infantry", [2, 0, 0]},
-        {"gunship", [3, 0, 0]},
-        {"hexadrone", [3, 0, 0]},
-        {"death machine", [1, 0, 0]},
-        {"armored weapon", [2, 0, 0]},
-        {"satellite", [3, 0, 0]},
-        {"colossus", [3, 0, 0]},
-        {"roader", [1, 0, 0]},
-        {"rearguard", [2, 0, 0]},
-        {"cavalry", [3, 0, 0]},
-        {"helldiver", [3, 0, 0]}
-    };
+    internal static string lastEnemyKilled = "";
 
 
      private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled){
         if(message.TextValue.Contains("You defeat the 4th Legion") && (ushort)type == 2874){
-
-            ChatGui.Print("Detected Kill");
-            numEnemiesKilled++;
+            
             lastEnemyKilled = Regex.Match(message.TextValue, "You defeat the 4th Legion (.*).$").Groups[1].Value;
+
+            //Access BSF dictionary
+            if(ClientState.TerritoryType == 920){
+                if(bsfDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
+                    mob.kills++;
+                }
+            }
+
+            //Access Zadnor Dictionary
+            if(ClientState.TerritoryType == 975){
+                if(zadnorDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
+                    mob.kills++; 
+                }
+            }
+
         }
 
         //Checks to see if the last message was you getting a bozjan cluster
         if (message.TextValue.Contains("You obtain a Bozjan cluster") && (ushort)type == 2110 && lastEnemyKilled != ""){
-            ChatGui.Print("Detected Bozjan cluster drop!");
-            ChatGui.Print(lastEnemyKilled);
-            totalClusters++;
+
+            //Access BSF dictionary
+            if(ClientState.TerritoryType == 920){
+                if(bsfDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
+                    mob.clusters++;
+                }
+            }
+
+            //Access Zadnor Dictionary
+            if(ClientState.TerritoryType == 975){
+                if(zadnorDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
+                    mob.clusters++; 
+                
+                }
+            }
             lastEnemyKilled = "";
         }
+        
     }
 
     private void DrawUI() => WindowSystem.Draw();
