@@ -10,6 +10,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Text.Json;
 
 
 
@@ -26,6 +27,8 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
 
     private const string CommandName = "/ct";
+
+    private readonly string saveDataFilePath = Path.Combine(PluginInterface.ConfigDirectory.FullName, "ClusterData.json");
 
     public static Dictionary<string, MobInfo> zadnorDict =
         new Dictionary<string, MobInfo>{
@@ -54,6 +57,34 @@ public sealed class Plugin : IDalamudPlugin
             {"hexadrone", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
             {"scorpion", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
         };
+
+    private void LoadData(){
+        try{
+            if (File.Exists(saveDataFilePath)){
+                string json = File.ReadAllText(saveDataFilePath);
+                var data = JsonSerializer.Deserialize<SavedData>(json);
+
+                if (data != null){
+                    zadnorDict = data.ZadnorData;
+                    bsfDict = data.BSFData;
+                }
+            }
+        }
+        catch (Exception ex){
+            Log.Error($"Failed to load data: {ex}");
+        }
+    }
+    private void SaveData(){
+        try{
+            var data = new SavedData{ZadnorData = zadnorDict, BSFData = bsfDict};
+            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(saveDataFilePath, json);
+        }
+        catch (Exception ex){
+            Log.Error($"Failed to save data: {ex}");
+        }
+    }
+
 
     public Configuration Configuration { get; init; }
 
@@ -94,6 +125,9 @@ public sealed class Plugin : IDalamudPlugin
         // Use /xllog to open the log window in-game
         // Example Output: 00:57:54.959 | INF | [SamplePlugin] ===A cool log message from Sample Plugin===
         Log.Information($"===A cool log message from {PluginInterface.Manifest.Name}===");
+
+        LoadData();
+
         
     }
 
@@ -107,6 +141,7 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.RemoveHandler(CommandName);
 
         ChatGui.ChatMessage -= OnChatMessage;
+        SaveData();
     }
 
     private void OnCommand(string command, string args){
