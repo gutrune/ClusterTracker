@@ -7,6 +7,9 @@ using Dalamud.Plugin.Services;
 using ClusterTracker.Windows;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
+using System;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 
 
@@ -24,7 +27,34 @@ public sealed class Plugin : IDalamudPlugin
 
     private const string CommandName = "/ct";
 
-    
+    public static Dictionary<string, MobInfo> zadnorDict =
+        new Dictionary<string, MobInfo>{
+            {"nimrod", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
+            {"infantry", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"gunship", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"hexadrone", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"death machine", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
+            {"armored weapon", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"satellite", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"colossus", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"roader", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
+            {"rearguard", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"cavalry", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"helldiver", new MobInfo() {rank= 3, kills= 0, clusters = 0}}
+        };
+    public static Dictionary<string, MobInfo> bsfDict = 
+        new Dictionary<string, MobInfo>{
+            {"slashers", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
+            {"Nimrod", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"gunship", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"hexadrone", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"vanguard", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
+            {"Avenger", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"Death Claw", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"Armored Weapon", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"hexadrone", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
+            {"Scorpion", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+        };
 
     public Configuration Configuration { get; init; }
 
@@ -65,6 +95,7 @@ public sealed class Plugin : IDalamudPlugin
         // Use /xllog to open the log window in-game
         // Example Output: 00:57:54.959 | INF | [SamplePlugin] ===A cool log message from Sample Plugin===
         Log.Information($"===A cool log message from {PluginInterface.Manifest.Name}===");
+        
     }
 
     public void Dispose()
@@ -84,12 +115,53 @@ public sealed class Plugin : IDalamudPlugin
         ToggleMainUI();
     }
 
-    
+    private string lastEnemyKilled = "";
+    private int numEnemiesKilled = 0;
+    private int totalClusters;
+
+    public Dictionary<string, int[]> BSFMobs = new(){
+        {"slashers", [1, 0, 0]},
+        {"vanguard", [1, 0, 0]},
+        {"hexadrone", [1, 0, 0]},
+        {"nimrod", [2, 0, 0]},
+        {"avenger", [2, 0, 0]},
+        {"scorpion", [2, 0, 0]},
+        {"gunship", [3, 0, 0]},
+        {"roader", [3, 0, 0]},
+        {"death claw", [3, 0, 0]},
+        {"armored weapon", [3, 0, 0]}
+    };
+
+    public Dictionary<string, int[]> zadnorMobs = new(){
+        {"nimrod", [1, 0, 0]},
+        {"infantry", [2, 0, 0]},
+        {"gunship", [3, 0, 0]},
+        {"hexadrone", [3, 0, 0]},
+        {"death machine", [1, 0, 0]},
+        {"armored weapon", [2, 0, 0]},
+        {"satellite", [3, 0, 0]},
+        {"colossus", [3, 0, 0]},
+        {"roader", [1, 0, 0]},
+        {"rearguard", [2, 0, 0]},
+        {"cavalry", [3, 0, 0]},
+        {"helldiver", [3, 0, 0]}
+    };
+
+
      private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled){
+        if(message.TextValue.Contains("You defeat the 4th Legion") && (ushort)type == 2874){
+
+            ChatGui.Print("Detected Kill");
+            numEnemiesKilled++;
+            lastEnemyKilled = Regex.Match(message.TextValue, "You defeat the 4th Legion (.*).$").Groups[1].Value;
+        }
 
         //Checks to see if the last message was you getting a bozjan cluster
-        if (message.TextValue.Contains("You obtain a Bozjan cluster")){
+        if (message.TextValue.Contains("You obtain a Bozjan cluster") && (ushort)type == 2110 && lastEnemyKilled != ""){
             ChatGui.Print("Detected Bozjan cluster drop!");
+            ChatGui.Print(lastEnemyKilled);
+            totalClusters++;
+            lastEnemyKilled = "";
         }
     }
 
