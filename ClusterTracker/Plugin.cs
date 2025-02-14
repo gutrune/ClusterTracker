@@ -25,10 +25,13 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
     [PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
+    [PluginService] internal static IPartyList PartyMembers { get; private set; } = null;
 
     private const string CommandName = "/ct";
 
-    private readonly string saveDataFilePath = Path.Combine(PluginInterface.ConfigDirectory.FullName, "ClusterData.json");
+    private const string configCommandName = "/ctcfg";
+
+    public readonly string saveDataFilePath = Path.Combine(PluginInterface.ConfigDirectory.FullName, "ClusterData.json");
 
     public static Dictionary<string, MobInfo> zadnorDict =
         new Dictionary<string, MobInfo>{
@@ -45,7 +48,7 @@ public sealed class Plugin : IDalamudPlugin
             {"cavalry", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
             {"helldiver", new MobInfo() {rank= 3, kills= 0, clusters = 0}}
         };
-    public static Dictionary<string, MobInfo> bsfDict = 
+    public static Dictionary<string, MobInfo> bsfDict =
         new Dictionary<string, MobInfo>{
             {"slashers", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
             {"nimrod", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
@@ -58,29 +61,37 @@ public sealed class Plugin : IDalamudPlugin
             {"scorpion", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
         };
 
-    private void LoadData(){
-        try{
-            if (File.Exists(saveDataFilePath)){
+    private void LoadData()
+    {
+        try
+        {
+            if (File.Exists(saveDataFilePath))
+            {
                 string json = File.ReadAllText(saveDataFilePath);
                 var data = JsonSerializer.Deserialize<SavedData>(json);
 
-                if (data != null){
+                if (data != null)
+                {
                     zadnorDict = data.ZadnorData;
                     bsfDict = data.BSFData;
                 }
             }
         }
-        catch (Exception ex){
+        catch (Exception ex)
+        {
             Log.Error($"Failed to load data: {ex}");
         }
     }
-    private void SaveData(){
-        try{
-            var data = new SavedData{ZadnorData = zadnorDict, BSFData = bsfDict};
+    public void SaveData()
+    {
+        try
+        {
+            var data = new SavedData { ZadnorData = zadnorDict, BSFData = bsfDict };
             string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(saveDataFilePath, json);
         }
-        catch (Exception ex){
+        catch (Exception ex)
+        {
             Log.Error($"Failed to save data: {ex}");
         }
     }
@@ -110,6 +121,11 @@ public sealed class Plugin : IDalamudPlugin
             HelpMessage = "Display Cluster Tracker Menu"
         });
 
+        CommandManager.AddHandler(configCommandName, new CommandInfo(OnConfigCommand)
+        {
+            HelpMessage = "Display Cluster Tracker Settings"
+        });
+
         ChatGui.ChatMessage += OnChatMessage;
 
         PluginInterface.UiBuilder.Draw += DrawUI;
@@ -128,7 +144,7 @@ public sealed class Plugin : IDalamudPlugin
 
         LoadData();
 
-        
+
     }
 
     public void Dispose()
@@ -144,55 +160,75 @@ public sealed class Plugin : IDalamudPlugin
         SaveData();
     }
 
-    private void OnCommand(string command, string args){
+    private void OnCommand(string command, string args)
+    {
         // in response to the slash command, just toggle the display status of our main ui
         ToggleMainUI();
+    }
+
+    private void OnConfigCommand(string command, string args)
+    {
+        ToggleConfigUI();
     }
 
     internal static string lastEnemyKilled = "";
 
 
-     private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled){
-        if(message.TextValue.Contains("You defeat the 4th Legion") && (ushort)type == 2874){
-            
-            lastEnemyKilled = Regex.Match(message.TextValue, "You defeat the 4th Legion (.*).$").Groups[1].Value;
+    private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
+    {
+        Log.Debug($"Party Members: {PartyMembers.PartyId}");
+        if (!Configuration.DisableParty || PartyMembers.PartyId == 0)
+        {
+            if (message.TextValue.Contains("You defeat the 4th Legion") && (ushort)type == 2874)
+            {
 
-            //Access BSF dictionary
-            if(ClientState.TerritoryType == 920){
-                if(bsfDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
-                    mob.kills++;
+                lastEnemyKilled = Regex.Match(message.TextValue, "You defeat the 4th Legion (.*).$").Groups[1].Value;
+
+                //Access BSF dictionary
+                if (ClientState.TerritoryType == 920)
+                {
+                    if (bsfDict.TryGetValue(lastEnemyKilled, out MobInfo mob))
+                    {
+                        mob.kills++;
+                    }
                 }
+
+                //Access Zadnor Dictionary
+                if (ClientState.TerritoryType == 975)
+                {
+                    if (zadnorDict.TryGetValue(lastEnemyKilled, out MobInfo mob))
+                    {
+                        mob.kills++;
+                    }
+                }
+
             }
 
-            //Access Zadnor Dictionary
-            if(ClientState.TerritoryType == 975){
-                if(zadnorDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
-                    mob.kills++; 
-                }
-            }
+            //Checks to see if the last message was you getting a bozjan cluster
+            if (message.TextValue.Contains("You obtain a Bozjan cluster") && (ushort)type == 2110 && lastEnemyKilled != "")
+            {
 
+                //Access BSF dictionary
+                if (ClientState.TerritoryType == 920)
+                {
+                    if (bsfDict.TryGetValue(lastEnemyKilled, out MobInfo mob))
+                    {
+                        mob.clusters++;
+                    }
+                }
+
+                //Access Zadnor Dictionary
+                if (ClientState.TerritoryType == 975)
+                {
+                    if (zadnorDict.TryGetValue(lastEnemyKilled, out MobInfo mob))
+                    {
+                        mob.clusters++;
+
+                    }
+                }
+                lastEnemyKilled = "";
+            }
         }
-
-        //Checks to see if the last message was you getting a bozjan cluster
-        if (message.TextValue.Contains("You obtain a Bozjan cluster") && (ushort)type == 2110 && lastEnemyKilled != ""){
-
-            //Access BSF dictionary
-            if(ClientState.TerritoryType == 920){
-                if(bsfDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
-                    mob.clusters++;
-                }
-            }
-
-            //Access Zadnor Dictionary
-            if(ClientState.TerritoryType == 975){
-                if(zadnorDict.TryGetValue(lastEnemyKilled, out MobInfo mob)){
-                    mob.clusters++; 
-                
-                }
-            }
-            lastEnemyKilled = "";
-        }
-        
     }
 
     private void DrawUI() => WindowSystem.Draw();
