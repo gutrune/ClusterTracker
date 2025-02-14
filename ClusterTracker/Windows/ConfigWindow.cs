@@ -81,8 +81,5 @@ public class ConfigWindow : Window, IDisposable
 
         if (changed)
             Configuration.Save();
-
-        ImGui.EndTabItem();
-
     }
 }

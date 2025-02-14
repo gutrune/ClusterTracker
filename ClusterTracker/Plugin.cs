@@ -176,7 +176,6 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
     {
-        Log.Debug($"Party Members: {PartyMembers.PartyId}");
         if (!Configuration.DisableParty || PartyMembers.PartyId == 0)
         {
             if (message.TextValue.Contains("You defeat the 4th Legion") && (ushort)type == 2874)
