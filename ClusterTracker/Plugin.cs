@@ -50,15 +50,16 @@ public sealed class Plugin : IDalamudPlugin
         };
     public static Dictionary<string, MobInfo> bsfDict =
         new Dictionary<string, MobInfo>{
-            {"slashers", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
+            {"slasher", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
             {"nimrod", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
-            {"gunship", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"roader", new MobInfo() {rank = 3, kills = 0, clusters = 0}},
+            {"death claw", new MobInfo() {rank = 3, kills = 0, clusters = 0}},
             {"vanguard", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
             {"avenger", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
-            {"death claw", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
-            {"armored weapon", new MobInfo() {rank= 3, kills= 0, clusters = 0}},
+            {"gunship", new MobInfo() {rank = 3, kills = 0, clusters = 0}},
             {"hexadrone", new MobInfo() {rank= 1, kills= 0, clusters = 0}},
             {"scorpion", new MobInfo() {rank= 2, kills= 0, clusters = 0}},
+            {"armored weapon", new MobInfo() {rank = 3, kills = 0, clusters = 0}},
         };
 
     private void LoadData()

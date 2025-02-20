@@ -5,7 +5,7 @@
         "InternalName": "clusterTracker",
         "Punchline": "Track your Bozjan cluster drops",
         "Description": "tracks your cluster drops. Use /ct to open window",
-        "AssemblyVersion": "0.2",
+        "AssemblyVersion": "0.2.1",
         "RepoUrl": "https://github.com/gutrune/ClusterTracker",
         "ApplicableVersion": "any",
         "DalamudApiLevel": 11,
