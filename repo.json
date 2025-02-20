@@ -13,8 +13,8 @@
         "stq"
         ],
         "IconUrl":"https://raw.githubusercontent.com/gutrune/ClusterTracker/refs/heads/master/Data/Bozjan_cluster.png",
-        "DownloadLinkInstall": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker0.2/clusterTracker.0.2.zip",
-        "DownloadLinkTesting": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker0.2/clusterTracker.0.2.zip",
-        "DownloadLinkUpdate": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker0.2/clusterTracker.0.2.zip"
+        "DownloadLinkInstall": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker0.2/clusterTracker.0.2.1.zip",
+        "DownloadLinkTesting": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker0.2/clusterTracker.0.2.1.zip",
+        "DownloadLinkUpdate": "https://github.com/gutrune/ClusterTracker/releases/download/ClusterTracker0.2/clusterTracker.0.2.1.zip"
     }
 ]
